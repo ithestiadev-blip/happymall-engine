@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문하기 | 행복몰</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>행복몰</h1>
+        <p>주문 정보를 입력해주세요</p>
+    </header>
+
+    <main>
+        <section class="products">
+
+            <div class="product-card">
+
+                <h2 id="product-title">상품 주문하기</h2>
+
+                <p>
+                    <label>이름</label><br>
+                    <input type="text" name="customer_name" placeholder="이름을 입력해주세요">
+                </p>
+
+                <p>
+                    <label>전화번호</label><br>
+                    <input type="tel" name="customer_phone" placeholder="010-0000-0000">
+                </p>
+
+                <p>
+                    <label>주소</label><br>
+                    <input type="text" name="customer_address" placeholder="받으실 주소를 입력해주세요">
+                </p>
+
+                <p>
+                    <label>수량</label><br>
+                    <input type="number" name="quantity" value="1" min="1">
+                </p>
+
+                <button type="button" onclick="submitOrder()">주문 접수하기</button>
+
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>아이티헤스티아 미니쇼핑몰</p>
+    </footer>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const product = params.get('product');
+    
+        if (product) {
+            document.getElementById('product-title').textContent = product + ' 주문하기';
+        }
+        function submitOrder() {
+    const name = document.querySelector('[name="customer_name"]').value;
+    const phone = document.querySelector('[name="customer_phone"]').value;
+    const address = document.querySelector('[name="customer_address"]').value;
+    const quantity = document.querySelector('[name="quantity"]').value;
+    const webAppUrl='https://script.google.com/macros/s/AKfycbxQE3hzIQV2tQbO7AhbY4cIKQ9d5VEGopx0FgOf4BYCDJGkueV53_bzwV2L3l8uk-GvJw/exec';
+    if (!name || !phone || !address) {
+    alert('이름, 전화번호, 주소를 모두 입력해주세요.');
+    return;
+}
+    alert(
+        '상품명: ' + product +
+        '\n이름: ' + name +
+        '\n전화번호: ' + phone +
+        '\n주소: ' + address +
+        '\n수량: ' + quantity
+    );
+    fetch(webAppUrl, {
+  method: 'POST',
+  body: JSON.stringify({
+    product: product,
+    name: name,
+    phone: phone,
+    address: address,
+    quantity: quantity
+  })
+});
+}
+    </script>
+</body>
+</html>
