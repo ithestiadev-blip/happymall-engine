@@ -59,6 +59,8 @@
             document.getElementById('product-title').textContent = product + ' 주문하기';
         }
         function submitOrder() {
+            const submitButton = document.querySelector('button');
+
     const name = document.querySelector('[name="customer_name"]').value;
     const phone = document.querySelector('[name="customer_phone"]').value;
     const address = document.querySelector('[name="customer_address"]').value;
@@ -68,6 +70,8 @@
     alert('이름, 전화번호, 주소를 모두 입력해주세요.');
     return;
 }
+submitButton.disabled = true;
+submitButton.textContent = '주문 접수 중...';
     alert(
         '상품명: ' + product +
         '\n이름: ' + name +
@@ -90,6 +94,8 @@ document.querySelector('[name="customer_name"]').value = '';
 document.querySelector('[name="customer_phone"]').value = '';
 document.querySelector('[name="customer_address"]').value = '';
 document.querySelector('[name="quantity"]').value = '';
+submitButton.disabled = false;
+submitButton.textContent = '주문 접수하기';
 }
     </script>
 </body>
