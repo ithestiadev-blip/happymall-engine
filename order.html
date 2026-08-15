@@ -41,6 +41,10 @@
                     <input type="number" name="quantity" value="1" min="1">
                 </p>
 
+                <label>
+                    <input type="checkbox" id="privacyAgree">
+                    개인정보 수집·이용에 동의합니다. (필수)
+                  </label>    
                 <button type="button" onclick="submitOrder()">주문 접수하기</button>
 
             </div>
@@ -60,6 +64,12 @@
         }
         async function submitOrder() {
             const submitButton = document.querySelector('button');
+            const privacyAgree = document.getElementById('privacyAgree');
+
+if (!privacyAgree.checked) {
+  alert('개인정보 수집·이용에 동의해주세요.');
+  return;
+}
 
     const name = document.querySelector('[name="customer_name"]').value;
     const phone = document.querySelector('[name="customer_phone"]').value;
@@ -97,6 +107,7 @@ document.querySelector('[name="customer_name"]').value = '';
 document.querySelector('[name="customer_phone"]').value = '';
 document.querySelector('[name="customer_address"]').value = '';
 document.querySelector('[name="quantity"]').value = '';
+document.getElementById('privacyAgree').checked = false;
 } catch (error) {
   alert('주문 전송에 실패했습니다. 잠시 후 다시 시도해주세요.');
 } finally {
