@@ -58,7 +58,7 @@
         if (product) {
             document.getElementById('product-title').textContent = product + ' 주문하기';
         }
-        function submitOrder() {
+        async function submitOrder() {
             const submitButton = document.querySelector('button');
 
     const name = document.querySelector('[name="customer_name"]').value;
@@ -70,6 +70,7 @@
     alert('이름, 전화번호, 주소를 모두 입력해주세요.');
     return;
 }
+
 submitButton.disabled = true;
 submitButton.textContent = '주문 접수 중...';
     alert(
@@ -79,7 +80,9 @@ submitButton.textContent = '주문 접수 중...';
         '\n주소: ' + address +
         '\n수량: ' + quantity
     );
-    fetch(webAppUrl, {
+    try {
+    
+    await fetch(webAppUrl, {
   method: 'POST',
   body: JSON.stringify({
     product: product,
@@ -94,8 +97,12 @@ document.querySelector('[name="customer_name"]').value = '';
 document.querySelector('[name="customer_phone"]').value = '';
 document.querySelector('[name="customer_address"]').value = '';
 document.querySelector('[name="quantity"]').value = '';
+} catch (error) {
+  alert('주문 전송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+} finally {
 submitButton.disabled = false;
 submitButton.textContent = '주문 접수하기';
+}
 }
     </script>
 </body>
