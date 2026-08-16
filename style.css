@@ -113,3 +113,37 @@ footer {
     font-size: 13px;
     line-height: 1.6;
   }
+
+  @media (max-width: 600px) {
+    header {
+      padding: 24px 16px 16px;
+    }
+  
+    header h1 {
+      font-size: 28px;
+    }
+  
+    main {
+      padding: 12px;
+    }
+  
+    .product-card {
+      padding: 16px;
+      border-radius: 14px;
+    }
+  
+    .product-image {
+      height: 220px;
+    }
+  
+    .product-card input:not([type="checkbox"]) {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+    }
+  
+    .privacy-info {
+      padding: 10px;
+      font-size: 12px;
+    }
+  }
