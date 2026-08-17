@@ -49,6 +49,12 @@ main {
     font-size: 16px;
 }
 
+.shop-intro .brand-slogan {
+  color: #b88900;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.7;
+}
 .product-card {
     background-color: #ffffff;
     border-radius: 18px;
