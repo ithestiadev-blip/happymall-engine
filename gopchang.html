@@ -45,14 +45,57 @@
             font-weight: bold;
         }
 
-        .product-card button {
+        .product-card .submit-order-btn {
             background-color: #b88900;
             color: #ffffff;
         }
 
-        .product-card button:disabled {
+        .product-card .submit-order-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        .address-group {
+            margin: 0 0 16px;
+        }
+
+        .address-group label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .address-search-btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background-color: #333333;
+            color: #ffffff;
+            cursor: pointer;
+            min-height: 48px;
+        }
+
+        .address-search-btn:active {
+            background-color: #222222;
+        }
+
+        .address-base-input {
+            background-color: #f5f5f5;
+            color: #333333;
+            margin-bottom: 10px;
+            cursor: default;
+        }
+
+        .address-base-input:focus {
+            outline: none;
+            border-color: #ddd;
+        }
+
+        .address-detail-input {
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -99,10 +142,21 @@
                     <input type="tel" name="customer_phone" placeholder="010-0000-0000">
                 </p>
 
-                <p>
-                    <label>주소</label><br>
-                    <input type="text" name="customer_address" placeholder="받으실 주소를 입력해주세요">
-                </p>
+                <div class="address-group">
+                    <label for="address-base">주소</label>
+                    <button type="button" id="search-address-btn" class="address-search-btn">주소 검색</button>
+                    <input type="text"
+                           id="address-base"
+                           name="customer_address_base"
+                           class="address-base-input"
+                           placeholder="주소 검색 버튼을 눌러주세요"
+                           readonly>
+                    <input type="text"
+                           id="address-detail"
+                           name="customer_address_detail"
+                           class="address-detail-input"
+                           placeholder="동·호수 등 상세주소를 입력해주세요">
+                </div>
 
                 <p>
                     <label>수량</label><br>
@@ -134,7 +188,7 @@
                     보유 기간: 전자상거래 관련 법령에 따라 5년<br>
                     ※ 동의를 거부할 수 있으나 주문 및 배송이 제한됩니다.
                 </div>
-                <button type="button" onclick="submitOrder()">주문 접수하기</button>
+                <button type="button" id="submit-order-btn" class="submit-order-btn" onclick="submitOrder()">주문 접수하기</button>
 
             </div>
 
@@ -145,6 +199,7 @@
         <p>아이티헤스티아 미니쇼핑몰</p>
     </footer>
 
+    <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script>
         const product = '프리미엄 곱창생김';
         const UNIT_PRICE = 19000;
@@ -228,8 +283,38 @@
         quantityInput.addEventListener('blur', handleQuantityBlur);
         updateOrderSummaryDisplay(calculateOrder(quantityInput.value));
 
+        function getFullAddress() {
+            const base = document.getElementById('address-base').value.trim();
+            const detail = document.getElementById('address-detail').value.trim();
+
+            if (!base) {
+                return '';
+            }
+            if (!detail) {
+                return base;
+            }
+            return base + ' ' + detail;
+        }
+
+        function openPostcodeSearch() {
+            if (typeof kakao === 'undefined' || !kakao.Postcode) {
+                alert('주소검색 서비스를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+                return;
+            }
+
+            new kakao.Postcode({
+                oncomplete: function(data) {
+                    const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                    document.getElementById('address-base').value = addr;
+                    document.getElementById('address-detail').focus();
+                }
+            }).open();
+        }
+
+        document.getElementById('search-address-btn').addEventListener('click', openPostcodeSearch);
+
         async function submitOrder() {
-            const submitButton = document.querySelector('button');
+            const submitButton = document.getElementById('submit-order-btn');
             const privacyAgree = document.getElementById('privacyAgree');
 
             if (!privacyAgree.checked) {
@@ -239,7 +324,7 @@
 
             const name = document.querySelector('[name="customer_name"]').value;
             const phone = document.querySelector('[name="customer_phone"]').value;
-            const address = document.querySelector('[name="customer_address"]').value;
+            const address = getFullAddress();
             const order = calculateOrder(document.querySelector('[name="quantity"]').value);
             const webAppUrl = 'https://script.google.com/macros/s/AKfycbxQE3hzIQV2tQbO7AhbY4cIKQ9d5VEGopx0FgOf4BYCDJGkueV53_bzwV2L3l8uk-GvJw/exec';
 
@@ -277,7 +362,8 @@
                 alert('주문이 정상적으로 접수되었습니다.');
                 document.querySelector('[name="customer_name"]').value = '';
                 document.querySelector('[name="customer_phone"]').value = '';
-                document.querySelector('[name="customer_address"]').value = '';
+                document.getElementById('address-base').value = '';
+                document.getElementById('address-detail').value = '';
                 document.querySelector('[name="quantity"]').value = '1';
                 document.getElementById('privacyAgree').checked = false;
                 updateOrderSummaryDisplay(calculateOrder('1'));
