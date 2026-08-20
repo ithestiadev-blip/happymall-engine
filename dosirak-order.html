@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도시락김 | 행복몰</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .order-summary {
+            margin: 16px 0;
+            padding: 16px;
+            background-color: #f9f9f9;
+            border: 1px solid #e2e2e2;
+            border-radius: 10px;
+        }
+
+        .order-summary p {
+            display: flex;
+            justify-content: space-between;
+            margin: 0 0 10px;
+            font-size: 15px;
+        }
+
+        .order-summary p:last-child {
+            margin-bottom: 0;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .order-summary .total-amount {
+            color: #b88900;
+        }
+
+        .product-card input:not([type="checkbox"]) {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .product-card label {
+            font-weight: bold;
+        }
+
+        .product-card .submit-order-btn {
+            background-color: #b88900;
+            color: #ffffff;
+        }
+
+        .product-card .submit-order-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .address-group {
+            margin: 0 0 16px;
+        }
+
+        .address-group label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .address-search-btn {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background-color: #333333;
+            color: #ffffff;
+            cursor: pointer;
+            min-height: 48px;
+        }
+
+        .address-search-btn:active {
+            background-color: #222222;
+        }
+
+        .address-base-input {
+            background-color: #f5f5f5;
+            color: #333333;
+            margin-bottom: 10px;
+            cursor: default;
+        }
+
+        .address-base-input:focus {
+            outline: none;
+            border-color: #ddd;
+        }
+
+        .address-detail-input {
+            margin-bottom: 0;
+        }
+
+        .postcode-layer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+
+        .postcode-layer.is-open {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.postcode-layer-open {
+            overflow: hidden;
+        }
+
+        .postcode-layer-backdrop {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.55);
+        }
+
+        .postcode-layer-panel {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 500px;
+            max-height: calc(100vh - 32px);
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .postcode-layer-header {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            padding: 16px;
+            border-bottom: 1px solid #e5e5e5;
+            background-color: #ffffff;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        .postcode-layer-header h3 {
+            margin: 0;
+            width: 100%;
+            font-size: 18px;
+            line-height: 1.4;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .postcode-close-btn {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: bold;
+            background-color: #333333;
+            color: #ffffff;
+            cursor: pointer;
+            min-height: 44px;
+        }
+
+        .postcode-close-btn:active {
+            background-color: #222222;
+        }
+
+        .postcode-embed {
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 420px;
+            height: min(72vh, 560px);
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 600px) {
+            .postcode-layer {
+                padding: 0;
+            }
+
+            .postcode-layer-panel {
+                max-width: 100%;
+                max-height: 100vh;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .postcode-embed {
+                min-height: 0;
+                height: auto;
+                flex: 1 1 auto;
+            }
+
+            .postcode-layer-header {
+                padding: 14px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>행복몰</h1>
+        <p>좋은 상품과 행복을 전합니다</p>
+    </header>
+
+    <main>
+        <section class="products">
+
+            <div class="product-card">
+
+                <img src="images/도시락김.jpg"
+                     alt="도시락김"
+                     class="product-image">
+
+                <h3>도시락김</h3>
+
+                <p class="price">28,000원</p>
+
+                <p class="description">
+                    27봉지 1박스 · 배송비 별도
+                </p>
+
+                <div class="shipping-info">
+                    <strong>배송 안내</strong><br>
+                    1~2박스 4,000원 · 3~4박스 6,000원 · 5박스 이상 무료<br>
+                    상품금액 10만원 이상 무료배송
+                </div>
+
+                <h2>도시락김 주문하기</h2>
+
+                <p>
+                    <label>이름</label><br>
+                    <input type="text" name="customer_name" placeholder="이름을 입력해주세요">
+                </p>
+
+                <p>
+                    <label>전화번호</label><br>
+                    <input type="tel" name="customer_phone" placeholder="010-0000-0000">
+                </p>
+
+                <div class="address-group">
+                    <label for="address-base">주소</label>
+                    <button type="button" id="search-address-btn" class="address-search-btn">주소 검색</button>
+                    <input type="text"
+                           id="address-base"
+                           name="customer_address_base"
+                           class="address-base-input"
+                           placeholder="주소 검색 버튼을 눌러주세요"
+                           readonly>
+                    <input type="text"
+                           id="address-detail"
+                           name="customer_address_detail"
+                           class="address-detail-input"
+                           placeholder="동·호수 등 상세주소를 입력해주세요">
+                </div>
+
+                <p>
+                    <label>수량</label><br>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1">
+                </p>
+
+                <div class="order-summary">
+                    <p>
+                        <span>상품금액</span>
+                        <span id="product-amount">28,000원</span>
+                    </p>
+                    <p>
+                        <span>배송비</span>
+                        <span id="shipping-fee">4,000원</span>
+                    </p>
+                    <p>
+                        <span>총 주문금액</span>
+                        <span id="total-amount" class="total-amount">23,000원</span>
+                    </p>
+                </div>
+
+                <label>
+                    <input type="checkbox" id="privacyAgree">
+                    개인정보 수집·이용에 동의합니다. (필수)
+                </label>
+                <div class="privacy-info">
+                    수집 항목: 이름, 전화번호, 주소<br>
+                    이용 목적: 주문 확인, 상품 배송 및 고객 응대<br>
+                    보유 기간: 전자상거래 관련 법령에 따라 5년<br>
+                    ※ 동의를 거부할 수 있으나 주문 및 배송이 제한됩니다.
+                </div>
+                <button type="button" id="submit-order-btn" class="submit-order-btn" onclick="submitOrder()">주문 접수하기</button>
+
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>아이티헤스티아 미니쇼핑몰</p>
+    </footer>
+
+    <div id="postcode-layer" class="postcode-layer" aria-hidden="true">
+        <div class="postcode-layer-backdrop" id="postcode-layer-backdrop"></div>
+        <div class="postcode-layer-panel" role="dialog" aria-modal="true" aria-labelledby="postcode-layer-title">
+            <div class="postcode-layer-header">
+                <h3 id="postcode-layer-title">주소 검색</h3>
+                <button type="button" id="close-postcode-btn" class="postcode-close-btn">닫기</button>
+            </div>
+            <div id="postcode-embed" class="postcode-embed"></div>
+        </div>
+    </div>
+
+    <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script>
+        const product = '도시락김';
+        const UNIT_PRICE = 28000;
+        const FREE_SHIPPING_THRESHOLD = 100000;
+
+        function formatWon(amount) {
+            return amount.toLocaleString('ko-KR') + '원';
+        }
+
+        function calculateShipping(quantity, productAmount) {
+            if (productAmount >= FREE_SHIPPING_THRESHOLD) {
+                return 0;
+            }
+            if (quantity >= 5) {
+                return 0;
+            }
+            if (quantity >= 3) {
+                return 6000;
+            }
+            return 4000;
+        }
+
+        function calculateOrder(quantity) {
+            const qty = Math.max(1, parseInt(quantity, 10) || 1);
+            const productAmount = UNIT_PRICE * qty;
+            const shippingFee = calculateShipping(qty, productAmount);
+            const totalAmount = productAmount + shippingFee;
+
+            return {
+                quantity: qty,
+                productAmount: productAmount,
+                shippingFee: shippingFee,
+                totalAmount: totalAmount
+            };
+        }
+
+        function parseQuantity(value) {
+            const trimmed = String(value).trim();
+            if (trimmed === '') {
+                return null;
+            }
+            const qty = parseInt(trimmed, 10);
+            if (isNaN(qty)) {
+                return null;
+            }
+            return qty;
+        }
+
+        function updateOrderSummaryDisplay(order) {
+            document.getElementById('product-amount').textContent = formatWon(order.productAmount);
+            document.getElementById('shipping-fee').textContent = formatWon(order.shippingFee);
+            document.getElementById('total-amount').textContent = formatWon(order.totalAmount);
+        }
+
+        function handleQuantityInput() {
+            const qty = parseQuantity(document.getElementById('quantity').value);
+            if (qty !== null && qty >= 1) {
+                updateOrderSummaryDisplay(calculateOrder(qty));
+            }
+        }
+
+        function handleQuantityBlur() {
+            const quantityInput = document.getElementById('quantity');
+            const qty = parseQuantity(quantityInput.value);
+
+            if (qty === null || qty < 1) {
+                quantityInput.value = '1';
+            }
+
+            updateOrderSummaryDisplay(calculateOrder(quantityInput.value));
+        }
+
+        function handleQuantityFocus() {
+            document.getElementById('quantity').select();
+        }
+
+        const quantityInput = document.getElementById('quantity');
+        quantityInput.addEventListener('focus', handleQuantityFocus);
+        quantityInput.addEventListener('click', handleQuantityFocus);
+        quantityInput.addEventListener('input', handleQuantityInput);
+        quantityInput.addEventListener('blur', handleQuantityBlur);
+        updateOrderSummaryDisplay(calculateOrder(quantityInput.value));
+
+        function getFullAddress() {
+            const base = document.getElementById('address-base').value.trim();
+            const detail = document.getElementById('address-detail').value.trim();
+
+            if (!base) {
+                return '';
+            }
+            if (!detail) {
+                return base;
+            }
+            return base + ' ' + detail;
+        }
+
+        function closePostcodeLayer() {
+            const layer = document.getElementById('postcode-layer');
+            layer.classList.remove('is-open');
+            layer.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('postcode-layer-open');
+            document.getElementById('postcode-embed').innerHTML = '';
+        }
+
+        function openPostcodeSearch() {
+            if (typeof kakao === 'undefined' || !kakao.Postcode) {
+                alert('주소검색 서비스를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+                return;
+            }
+
+            const layer = document.getElementById('postcode-layer');
+            const embedElement = document.getElementById('postcode-embed');
+            embedElement.innerHTML = '';
+
+            layer.classList.add('is-open');
+            layer.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('postcode-layer-open');
+
+            new kakao.Postcode({
+                oncomplete: function(data) {
+                    const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                    document.getElementById('address-base').value = addr;
+                    closePostcodeLayer();
+                    document.getElementById('address-detail').focus();
+                },
+                width: '100%',
+                height: '100%'
+            }).embed(embedElement);
+        }
+
+        document.getElementById('search-address-btn').addEventListener('click', openPostcodeSearch);
+        document.getElementById('close-postcode-btn').addEventListener('click', closePostcodeLayer);
+        document.getElementById('postcode-layer-backdrop').addEventListener('click', closePostcodeLayer);
+
+        async function submitOrder() {
+            const submitButton = document.getElementById('submit-order-btn');
+            const privacyAgree = document.getElementById('privacyAgree');
+
+            if (!privacyAgree.checked) {
+                alert('개인정보 수집·이용에 동의해주세요.');
+                return;
+            }
+
+            const name = document.querySelector('[name="customer_name"]').value;
+            const phone = document.querySelector('[name="customer_phone"]').value;
+            const address = getFullAddress();
+            const order = calculateOrder(document.querySelector('[name="quantity"]').value);
+            const webAppUrl = 'https://script.google.com/macros/s/AKfycbxQE3hzIQV2tQbO7AhbY4cIKQ9d5VEGopx0FgOf4BYCDJGkueV53_bzwV2L3l8uk-GvJw/exec';
+
+            if (!name || !phone || !address) {
+                alert('이름, 전화번호, 주소를 모두 입력해주세요.');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = '주문 접수 중...';
+            alert(
+                '상품명: ' + product +
+                '\n이름: ' + name +
+                '\n전화번호: ' + phone +
+                '\n주소: ' + address +
+                '\n수량: ' + order.quantity +
+                '\n상품금액: ' + formatWon(order.productAmount) +
+                '\n배송비: ' + formatWon(order.shippingFee) +
+                '\n총 주문금액: ' + formatWon(order.totalAmount)
+            );
+            try {
+                await fetch(webAppUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        product: product,
+                        name: name,
+                        phone: phone,
+                        address: address,
+                        quantity: order.quantity,
+                        productAmount: order.productAmount,
+                        shippingFee: order.shippingFee,
+                        totalAmount: order.totalAmount
+                    })
+                });
+                alert('주문이 정상적으로 접수되었습니다.');
+                document.querySelector('[name="customer_name"]').value = '';
+                document.querySelector('[name="customer_phone"]').value = '';
+                document.getElementById('address-base').value = '';
+                document.getElementById('address-detail').value = '';
+                document.querySelector('[name="quantity"]').value = '1';
+                document.getElementById('privacyAgree').checked = false;
+                updateOrderSummaryDisplay(calculateOrder('1'));
+            } catch (error) {
+                alert('주문 전송에 실패했습니다. 잠시 후 다시 시도해주세요.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = '주문 접수하기';
+            }
+        }
+    </script>
+
+<script>
+    const phoneInput = document.querySelector('input[name="customer_phone"]');
+  
+    if (phoneInput) {
+      phoneInput.setAttribute('inputmode', 'numeric');
+      phoneInput.setAttribute('autocomplete', 'tel');
+      phoneInput.setAttribute('maxlength', '13');
+  
+      phoneInput.addEventListener('input', function () {
+        const numbers = this.value.replace(/[^0-9]/g, '').slice(0, 11);
+  
+        if (numbers.length <= 3) {
+          this.value = numbers;
+        } else if (numbers.length <= 7) {
+          this.value = numbers.slice(0, 3) + '-' + numbers.slice(3);
+        } else if (numbers.length <= 10) {
+          this.value =
+            numbers.slice(0, 3) + '-' +
+            numbers.slice(3, 6) + '-' +
+            numbers.slice(6);
+        } else {
+          this.value =
+            numbers.slice(0, 3) + '-' +
+            numbers.slice(3, 7) + '-' +
+            numbers.slice(7);
+        }
+      });
+  
+      const orderButton = Array.from(document.querySelectorAll('button')).find(
+        button => button.textContent.includes('주문 접수하기')
+      );
+  
+      if (orderButton) {
+        orderButton.addEventListener('click', function (event) {
+          const phoneNumbers = phoneInput.value.replace(/[^0-9]/g, '');
+  
+          if (phoneNumbers.length !== 10 && phoneNumbers.length !== 11) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            alert('전화번호를 정확히 입력해 주세요.');
+            phoneInput.focus();
+          }
+        }, true);
+      }
+    }
+  </script>
+</body>
+</html>
