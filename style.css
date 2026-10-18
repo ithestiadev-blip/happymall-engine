@@ -537,3 +537,18 @@ footer p {
         padding: 17px 12px;
     }
 }
+
+
+footer a {
+    color: #f3d778;
+}
+
+.business-info {
+    max-width: 760px;
+    margin: 14px auto 0;
+    padding-top: 14px;
+    border-top: 1px solid rgba(231, 223, 200, 0.28);
+    color: #d9d2c2;
+    font-size: 12px;
+    line-height: 1.65;
+}
