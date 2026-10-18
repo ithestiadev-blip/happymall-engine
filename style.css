@@ -552,3 +552,42 @@ footer a {
     font-size: 12px;
     line-height: 1.65;
 }
+
+.bank-transfer-box {
+    margin: 18px 0;
+    padding: 20px;
+    border: 1px solid #caa54b;
+    border-radius: 14px;
+    background: #fffaf0;
+    text-align: center;
+}
+
+.bank-transfer-box .payment-label {
+    margin: 0 0 10px;
+    color: #72530a;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.bank-transfer-box strong,
+.bank-transfer-box span,
+.bank-transfer-box small {
+    display: block;
+}
+
+.bank-transfer-box strong {
+    color: #173a2b;
+    font-size: 21px;
+}
+
+.bank-transfer-box span {
+    margin-top: 6px;
+    color: #3f3b34;
+    font-weight: 700;
+}
+
+.bank-transfer-box small {
+    margin-top: 12px;
+    color: #746c60;
+    line-height: 1.65;
+}
